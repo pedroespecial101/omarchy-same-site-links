@@ -11,13 +11,20 @@
     $("current-site").textContent = standalone ? (state.currentSite || "Unknown") : "—";
     $("site-section").hidden = !standalone;
     $("last-section").hidden = !standalone;
+    $("bypass-section").hidden = !standalone || !state.currentSite;
+    $("bypass-site-name").textContent = state.currentSite || "this site";
+    $("bypass-site").checked = Boolean(standalone && state.currentSite && state.bypassed);
+    $("bypass-site").disabled = !standalone || !state.currentSite;
 
-    const mode = ["disabled", "dry-run", "enabled"].includes(state?.mode) ? state.mode : "dry-run";
+    const mode = ["disabled", "dry-run", "enabled"].includes(state?.mode) ? state.mode : "enabled";
     const control = document.querySelector(`input[name="mode"][value="${mode}"]`);
     if (control) control.checked = true;
 
     const detection = state?.lastDetection;
-    $("last-link").textContent = detection?.target || "No link detected yet.";
+    const target = detection?.targetHost
+      ? `${detection.targetHost}${detection.targetPath || "/"}`
+      : detection?.target;
+    $("last-link").textContent = target || "No link detected yet.";
     $("decision").textContent = detection?.decision || "—";
   };
 
@@ -39,8 +46,8 @@
       return;
     }
 
-    const stored = await chrome.storage.local.get({ mode: "dry-run", lastDetection: null });
-    render({ standalone: false, mode: stored.mode, lastDetection: stored.lastDetection });
+    const localState = await chrome.storage.local.get({ mode: "enabled", bypassedSites: [], lastDetection: null });
+    render({ standalone: false, mode: localState.mode, lastDetection: localState.lastDetection });
   };
 
   document.querySelectorAll('input[name="mode"]').forEach((control) => {
@@ -48,6 +55,16 @@
       await chrome.storage.local.set({ mode: control.value });
       await sendToActiveTab({ type: "set-mode", mode: control.value });
     });
+  });
+
+  $("bypass-site").addEventListener("change", async (event) => {
+    const site = $("bypass-site-name").textContent;
+    if (!site || site === "this site") return;
+    const stored = await chrome.storage.local.get({ bypassedSites: [] });
+    const sites = new Set(Array.isArray(stored.bypassedSites) ? stored.bypassedSites : []);
+    if (event.target.checked) sites.add(site);
+    else sites.delete(site);
+    await chrome.storage.local.set({ bypassedSites: [...sites] });
   });
 
   void load();

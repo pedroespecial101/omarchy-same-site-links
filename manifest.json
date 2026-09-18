@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Omarchy Same-Site Links",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Keeps same-site links opened from Omarchy web apps in the current window.",
   "permissions": ["storage"],
   "action": {
@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["site-utils.js", "content.js"],
+      "js": ["vendor/tldts.umd.min.js", "site-utils.js", "content.js"],
       "run_at": "document_start"
     }
   ]
