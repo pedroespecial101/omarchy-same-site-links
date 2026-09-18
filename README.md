@@ -1,8 +1,8 @@
 # Omarchy Same-Site Links
 
 A small Manifest V3 Chromium extension for Omarchy `--app=` web-app windows.
-When enabled, an ordinary left-click on an explicit `target="_blank"` (or
-named-target) HTTP(S) link stays in the current window when the destination
+When enabled, an ordinary left-click on an explicit `target="_blank"` HTTP(S)
+link stays in the current window when the destination
 has the same registrable domain as the current page.
 
 Normal Chromium windows are detected with
@@ -29,8 +29,9 @@ apps.
 
 ## Scope
 
-The first version only changes explicit link-target behavior. It does not
-rewrite `window.open()` calls or modified clicks, so Ctrl/Cmd/Shift/Alt-clicks
-and middle-clicks preserve their normal intent. The bundled compact suffix
-rules cover common country-code and delegated hosting suffixes and can be
-extended in `site-utils.js` when needed.
+The first version only changes explicit `_blank` link-target behavior. It does
+not rewrite named targets or `window.open()` calls, or modified clicks, so
+Ctrl/Cmd/Shift/Alt-clicks and middle-clicks preserve their normal intent. Dry
+Run decisions are written to both the popup and the page console. The bundled
+compact suffix rules cover common country-code and delegated hosting suffixes
+and can be extended in `site-utils.js` when needed.

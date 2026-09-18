@@ -18,7 +18,7 @@
 
   const linkTargetOpensElsewhere = (link) => {
     const target = (link.getAttribute("target") || "").trim().toLowerCase();
-    return target === "_blank" || (target && !["_self", "_parent", "_top"].includes(target));
+    return target === "_blank";
   };
 
   const getLinkFromEvent = (event) => {
@@ -32,6 +32,17 @@
     } catch {
       // Diagnostics must never interfere with navigation.
     }
+  };
+
+  const logDryRunDecision = (detection) => {
+    console.info("Omarchy Same-Site Links", {
+      Standalone: detection.standalone,
+      "Current site": detection.currentSite,
+      Target: detection.target,
+      "Same site": detection.sameSite,
+      "Would intercept": detection.wouldIntercept,
+      Decision: detection.decision
+    });
   };
 
   const inspectLink = (link) => {
@@ -69,6 +80,8 @@
 
     void saveDetection(detection);
 
+    if (mode === "dry-run") logDryRunDecision(detection);
+
     if (mode !== "enabled" || !detection.sameSite) return;
 
     event.preventDefault();
@@ -79,6 +92,11 @@
   chrome.storage.local.get({ mode: DEFAULT_MODE }).then((result) => {
     mode = normaliseMode(result.mode);
   }).catch(() => {});
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "local" || !changes.mode) return;
+    mode = normaliseMode(changes.mode.newValue);
+  });
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === "get-state") {
