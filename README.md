@@ -11,10 +11,18 @@ Normal Chromium windows are detected with
 ## Modes
 
 - **Disabled**: no link detection or interception.
-- **Dry Run** (default): records decisions in the popup without changing navigation.
-- **Enabled**: same-site new-window links navigate the current web-app window.
+- **Dry Run**: records decisions in the popup and console without changing navigation.
+- **Enabled** (default for new installs): same-site new-window links navigate the current web-app window.
 
 The mode is stored with `chrome.storage.local`.
+
+The popup can also disable interception for the current registrable domain. Site
+bypasses are stored locally and propagate immediately to open web-app pages.
+
+Registrable domains are calculated with a locally bundled `tldts` Public Suffix
+List implementation, including delegated suffixes such as `github.io`. No
+network access is required at runtime. Full diagnostic URLs are never persisted:
+session diagnostics retain only the destination hostname, pathname, and decision.
 
 ## Install for local testing
 
@@ -29,9 +37,7 @@ apps.
 
 ## Scope
 
-The first version only changes explicit `_blank` link-target behavior. It does
-not rewrite named targets or `window.open()` calls, or modified clicks, so
-Ctrl/Cmd/Shift/Alt-clicks and middle-clicks preserve their normal intent. Dry
-Run decisions are written to both the popup and the page console. The bundled
-compact suffix rules cover common country-code and delegated hosting suffixes
-and can be extended in `site-utils.js` when needed.
+The extension has been tested against eBay and AliExpress. It only changes
+explicit `_blank` link-target behavior. It does not rewrite named targets or
+`window.open()` calls, or modified clicks, so Ctrl/Cmd/Shift/Alt-clicks and
+middle-clicks preserve their normal intent. Normal Chromium remains inactive.
