@@ -4,6 +4,7 @@
   const DEFAULT_MODE = "enabled";
   let mode = DEFAULT_MODE;
   let bypassedSites = new Set();
+  let stateReady = false;
 
   const normaliseMode = (value) =>
     ["disabled", "dry-run", "enabled"].includes(value) ? value : DEFAULT_MODE;
@@ -36,7 +37,7 @@
 
   const saveDetection = async (detection) => {
     try {
-      await chrome.storage.session.set({
+      await chrome.storage.local.set({
         lastDetection: {
           standalone: detection.standalone,
           currentSite: detection.currentSite,
@@ -89,7 +90,7 @@
   };
 
   const onClick = (event) => {
-    if (!isStandaloneWebApp() || mode === "disabled" || !isUnmodifiedLeftClick(event)) return;
+    if (!stateReady || !isStandaloneWebApp() || mode === "disabled" || !isUnmodifiedLeftClick(event)) return;
 
     const currentSite = registrableDomainFromHostname(location.hostname);
     if (!currentSite || bypassedSites.has(currentSite)) return;
@@ -111,11 +112,17 @@
     location.assign(detection.targetUrl.href);
   };
 
-  chrome.storage.local.get({ mode: DEFAULT_MODE, bypassedSites: [] }).then((result) => {
+  chrome.storage.local.get({ mode: DEFAULT_MODE, bypassedSites: [], lastDetection: null }).then((result) => {
     mode = normaliseMode(result.mode);
     bypassedSites = new Set(normaliseBypassedSites(result.bypassedSites));
-  }).catch(() => {});
-  void chrome.storage.local.remove("lastDetection").catch(() => {});
+    if (result.lastDetection && !result.lastDetection.targetHost) {
+      void chrome.storage.local.remove("lastDetection");
+    }
+    stateReady = true;
+  }).catch(() => {
+    mode = "disabled";
+    stateReady = true;
+  });
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== "local") return;
@@ -127,17 +134,14 @@
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === "get-state") {
-      Promise.all([
-        chrome.storage.local.get({ mode: DEFAULT_MODE, bypassedSites: [] }),
-        chrome.storage.session.get({ lastDetection: null })
-      ]).then(([localState, sessionState]) => {
+      chrome.storage.local.get({ mode: DEFAULT_MODE, bypassedSites: [], lastDetection: null }).then((localState) => {
         const currentSite = registrableDomainFromHostname(location.hostname);
         sendResponse({
           standalone: isStandaloneWebApp(),
           currentSite,
           mode: normaliseMode(localState.mode),
           bypassed: normaliseBypassedSites(localState.bypassedSites).includes(currentSite),
-          lastDetection: sessionState.lastDetection
+          lastDetection: localState.lastDetection?.targetHost ? localState.lastDetection : null
         });
       }).catch(() => sendResponse({
         standalone: isStandaloneWebApp(),

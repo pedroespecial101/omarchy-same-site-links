@@ -22,7 +22,7 @@ bypasses are stored locally and propagate immediately to open web-app pages.
 Registrable domains are calculated with a locally bundled `tldts` Public Suffix
 List implementation, including delegated suffixes such as `github.io`. No
 network access is required at runtime. Full diagnostic URLs are never persisted:
-session diagnostics retain only the destination hostname, pathname, and decision.
+local diagnostics retain only the destination hostname, pathname, and decision.
 
 ## Install for local testing
 

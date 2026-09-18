@@ -46,11 +46,8 @@
       return;
     }
 
-    const [localState, sessionState] = await Promise.all([
-      chrome.storage.local.get({ mode: "enabled", bypassedSites: [] }),
-      chrome.storage.session.get({ lastDetection: null })
-    ]);
-    render({ standalone: false, mode: localState.mode, lastDetection: sessionState.lastDetection });
+    const localState = await chrome.storage.local.get({ mode: "enabled", bypassedSites: [], lastDetection: null });
+    render({ standalone: false, mode: localState.mode, lastDetection: localState.lastDetection });
   };
 
   document.querySelectorAll('input[name="mode"]').forEach((control) => {
