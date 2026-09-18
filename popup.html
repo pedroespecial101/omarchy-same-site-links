@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Omarchy Same-Site Links</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <h1>Omarchy Same-Site Links</h1>
+
+      <section>
+        <h2>Environment</h2>
+        <p id="environment">Checking…</p>
+      </section>
+
+      <section id="site-section">
+        <h2>Current site</h2>
+        <p id="current-site">—</p>
+      </section>
+
+      <section>
+        <h2>Mode</h2>
+        <label><input type="radio" name="mode" value="disabled"> Disabled</label>
+        <label><input type="radio" name="mode" value="dry-run"> Dry Run</label>
+        <label><input type="radio" name="mode" value="enabled"> Enabled</label>
+      </section>
+
+      <section id="last-section">
+        <h2>Last detected link</h2>
+        <p id="last-link">No link detected yet.</p>
+        <p id="decision">—</p>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

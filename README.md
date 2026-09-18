@@ -1,0 +1,36 @@
+# Omarchy Same-Site Links
+
+A small Manifest V3 Chromium extension for Omarchy `--app=` web-app windows.
+When enabled, an ordinary left-click on an explicit `target="_blank"` (or
+named-target) HTTP(S) link stays in the current window when the destination
+has the same registrable domain as the current page.
+
+Normal Chromium windows are detected with
+`matchMedia('(display-mode: standalone)').matches` and are left untouched.
+
+## Modes
+
+- **Disabled**: no link detection or interception.
+- **Dry Run** (default): records decisions in the popup without changing navigation.
+- **Enabled**: same-site new-window links navigate the current web-app window.
+
+The mode is stored with `chrome.storage.local`.
+
+## Install for local testing
+
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Choose **Load unpacked** and select this directory.
+4. Open or restart an Omarchy Chromium web app, then use the extension popup.
+
+The extension intentionally uses only the `storage` permission. Content scripts
+run on HTTP(S) pages because the same behavior is intended across Omarchy web
+apps.
+
+## Scope
+
+The first version only changes explicit link-target behavior. It does not
+rewrite `window.open()` calls or modified clicks, so Ctrl/Cmd/Shift/Alt-clicks
+and middle-clicks preserve their normal intent. The bundled compact suffix
+rules cover common country-code and delegated hosting suffixes and can be
+extended in `site-utils.js` when needed.

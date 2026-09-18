@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Omarchy Same-Site Links",
+  "version": "1.0.0",
+  "description": "Keeps same-site links opened from Omarchy web apps in the current window.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Omarchy Same-Site Links",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["site-utils.js", "content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
